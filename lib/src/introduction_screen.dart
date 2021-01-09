@@ -99,10 +99,14 @@ class IntroductionScreenState extends State<IntroductionScreen> {
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: _onScroll,
-            child: PageView(
+            child: PageView.builder(
               controller: _pageController,
+              itemCount: widget.pages.length,
+              itemBuilder: (context, index) => IntroPage(
+                key: Key(index.toString()),
+                page: widget.pages[index],
+              ),
               physics: const BouncingScrollPhysics(),
-              children: widget.pages.map((p) => IntroPage(page: p)).toList(),
               onPageChanged: widget.onChange,
             ),
           ),
