@@ -25,16 +25,8 @@ class IntroductionScreen extends StatefulWidget {
   /// Callback when page change
   final ValueChanged<int> onChange;
 
-  /// Skip button
-  final Widget skip;
-
   /// Next button
   final Widget next;
-
-  /// Is the Skip button should be display
-  ///
-  /// @Default `false`
-  final bool showSkipButton;
 
   /// Is the Next button should be display
   ///
@@ -72,21 +64,6 @@ class IntroductionScreen extends StatefulWidget {
   /// @Default `0`
   final int initialPage;
 
-  /// Flex ratio of the skip button
-  ///
-  /// @Default `1`
-  final int skipFlex;
-
-  /// Flex ratio of the progress indicator
-  ///
-  /// @Default `1`
-  final int dotsFlex;
-
-  /// Flex ratio of the next/done button
-  ///
-  /// @Default `1`
-  final int nextFlex;
-
   /// Type of animation between pages
   ///
   /// @Default `Curves.easeIn`
@@ -111,9 +88,7 @@ class IntroductionScreen extends StatefulWidget {
     @required this.done,
     this.onSkip,
     this.onChange,
-    this.skip,
     this.next,
-    this.showSkipButton = false,
     this.showNextButton = true,
     this.isProgress = true,
     this.isProgressTap = true,
@@ -122,9 +97,6 @@ class IntroductionScreen extends StatefulWidget {
     this.dotsDecorator = const DotsDecorator(),
     this.animationDuration = 350,
     this.initialPage = 0,
-    this.skipFlex = 1,
-    this.dotsFlex = 1,
-    this.nextFlex = 1,
     this.curve = Curves.easeIn,
     this.color,
     this.skipColor,
@@ -137,8 +109,6 @@ class IntroductionScreen extends StatefulWidget {
         ),
         assert(onDone != null),
         assert(done != null),
-        assert((showSkipButton && skip != null) || !showSkipButton),
-        assert(skipFlex >= 0 && dotsFlex >= 0 && nextFlex >= 0),
         assert(initialPage == null || initialPage >= 0),
         super(key: key);
 
@@ -149,7 +119,6 @@ class IntroductionScreen extends StatefulWidget {
 class IntroductionScreenState extends State<IntroductionScreen> {
   PageController _pageController;
   double _currentPage = 0.0;
-  bool _isSkipPressed = false;
   bool _isScrolling = false;
 
   PageController get controller => _pageController;
@@ -164,19 +133,6 @@ class IntroductionScreenState extends State<IntroductionScreen> {
 
   void next() {
     animateScroll(min(_currentPage.round() + 1, widget.pages.length - 1));
-  }
-
-  Future<void> _onSkip() async {
-    if (widget.onSkip != null) return widget.onSkip();
-    await skipToEnd();
-  }
-
-  Future<void> skipToEnd() async {
-    setState(() => _isSkipPressed = true);
-    await animateScroll(widget.pages.length - 1);
-    if (mounted) {
-      setState(() => _isSkipPressed = false);
-    }
   }
 
   Future<void> animateScroll(int page) async {
@@ -202,13 +158,6 @@ class IntroductionScreenState extends State<IntroductionScreen> {
   @override
   Widget build(BuildContext context) {
     final isLastPage = (_currentPage.round() == widget.pages.length - 1);
-    bool isSkipBtn = (!_isSkipPressed && !isLastPage && widget.showSkipButton);
-
-    final skipBtn = IntroButton(
-      child: widget.skip,
-      color: widget.skipColor ?? widget.color,
-      onPressed: isSkipBtn ? _onSkip : null,
-    );
 
     final nextBtn = IntroButton(
       child: widget.next,
@@ -244,14 +193,9 @@ class IntroductionScreenState extends State<IntroductionScreen> {
             child: SafeArea(
               child: Row(
                 children: [
+                  Expanded(flex: 1, child: Container()),
                   Expanded(
-                    flex: widget.skipFlex,
-                    child: isSkipBtn
-                        ? skipBtn
-                        : Opacity(opacity: 0.0, child: skipBtn),
-                  ),
-                  Expanded(
-                    flex: widget.dotsFlex,
+                    flex: 2,
                     child: Center(
                       child: widget.isProgress
                           ? DotsIndicator(
@@ -266,7 +210,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
                     ),
                   ),
                   Expanded(
-                    flex: widget.nextFlex,
+                    flex: 1,
                     child: isLastPage
                         ? doneBtn
                         : widget.showNextButton
