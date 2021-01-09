@@ -5,12 +5,10 @@ import 'dart:math';
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:introduction_screen/src/model/page_view_model.dart';
-import 'package:introduction_screen/src/ui/intro_page.dart';
 
 class IntroductionScreen extends StatefulWidget {
-  /// All pages of the onboarding
-  final List<PageViewModel> pages;
+  /// All pages of the onboarding.
+  final List<Widget> pages;
 
   /// Callback when Done button is pressed
   final VoidCallback onDone;
@@ -26,7 +24,7 @@ class IntroductionScreen extends StatefulWidget {
   })  : assert(pages != null),
         assert(
           pages.length > 0,
-          "You provide at least one page on introduction screen !",
+          'You provide at least one page on introduction screen !',
         ),
         assert(onDone != null),
         super(key: key);
@@ -44,7 +42,7 @@ class IntroductionScreenState extends State<IntroductionScreen> {
   @override
   void initState() {
     super.initState();
-    int initialPage = min(0, widget.pages.length - 1);
+    final initialPage = min(0, widget.pages.length - 1);
     _currentPage = initialPage.toDouble();
     _pageController = PageController(initialPage: initialPage);
   }
@@ -99,13 +97,9 @@ class IntroductionScreenState extends State<IntroductionScreen> {
         children: [
           NotificationListener<ScrollNotification>(
             onNotification: _onScroll,
-            child: PageView.builder(
+            child: PageView(
               controller: _pageController,
-              itemCount: widget.pages.length,
-              itemBuilder: (context, index) => IntroPage(
-                key: Key(index.toString()),
-                page: widget.pages[index],
-              ),
+              children: widget.pages,
               physics: const BouncingScrollPhysics(),
               onPageChanged: widget.onChange,
             ),
