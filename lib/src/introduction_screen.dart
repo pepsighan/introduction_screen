@@ -3,10 +3,9 @@ library introduction_screen;
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter/material.dart';
 import 'package:introduction_screen/src/model/page_view_model.dart';
-import 'package:introduction_screen/src/ui/intro_button.dart';
 import 'package:introduction_screen/src/ui/intro_page.dart';
 
 class IntroductionScreen extends StatefulWidget {
@@ -16,22 +15,11 @@ class IntroductionScreen extends StatefulWidget {
   /// Callback when Done button is pressed
   final VoidCallback onDone;
 
-  /// Done button
-  final Widget done;
-
   /// Callback when Skip button is pressed
   final VoidCallback onSkip;
 
   /// Callback when page change
   final ValueChanged<int> onChange;
-
-  /// Next button
-  final Widget next;
-
-  /// Is the Next button should be display
-  ///
-  /// @Default `true`
-  final bool showNextButton;
 
   /// Is the progress indicator should be display
   ///
@@ -85,11 +73,8 @@ class IntroductionScreen extends StatefulWidget {
     Key key,
     @required this.pages,
     @required this.onDone,
-    @required this.done,
     this.onSkip,
     this.onChange,
-    this.next,
-    this.showNextButton = true,
     this.isProgress = true,
     this.isProgressTap = true,
     this.freeze = false,
@@ -108,7 +93,6 @@ class IntroductionScreen extends StatefulWidget {
           "You provide at least one page on introduction screen !",
         ),
         assert(onDone != null),
-        assert(done != null),
         assert(initialPage == null || initialPage >= 0),
         super(key: key);
 
@@ -119,7 +103,6 @@ class IntroductionScreen extends StatefulWidget {
 class IntroductionScreenState extends State<IntroductionScreen> {
   PageController _pageController;
   double _currentPage = 0.0;
-  bool _isScrolling = false;
 
   PageController get controller => _pageController;
 
@@ -136,15 +119,11 @@ class IntroductionScreenState extends State<IntroductionScreen> {
   }
 
   Future<void> animateScroll(int page) async {
-    setState(() => _isScrolling = true);
     await _pageController.animateToPage(
       page,
       duration: Duration(milliseconds: widget.animationDuration),
       curve: widget.curve,
     );
-    if (mounted) {
-      setState(() => _isScrolling = false);
-    }
   }
 
   bool _onScroll(ScrollNotification notification) {
@@ -159,15 +138,23 @@ class IntroductionScreenState extends State<IntroductionScreen> {
   Widget build(BuildContext context) {
     final isLastPage = (_currentPage.round() == widget.pages.length - 1);
 
-    final nextBtn = IntroButton(
-      child: widget.next,
-      color: widget.nextColor ?? widget.color,
-      onPressed: widget.showNextButton && !_isScrolling ? next : null,
+    final nextBtn = ElevatedButton(
+      child: Icon(Icons.arrow_forward),
+      onPressed: next,
+      style: ButtonStyle(
+        minimumSize: MaterialStateProperty.all(Size(32, 32)),
+        padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        ),
+        shape: MaterialStateProperty.all(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(64),
+        )),
+      ),
     );
 
-    final doneBtn = IntroButton(
-      child: widget.done,
-      color: widget.doneColor ?? widget.color,
+    final doneBtn = ElevatedButton.icon(
+      icon: Icon(Icons.arrow_forward),
+      label: Text("Let's Go"),
       onPressed: widget.onDone,
     );
 
@@ -187,15 +174,14 @@ class IntroductionScreenState extends State<IntroductionScreen> {
             ),
           ),
           Positioned(
-            bottom: 16.0,
-            left: 16.0,
-            right: 16.0,
+            bottom: 16,
+            left: 16,
+            right: 16,
             child: SafeArea(
               child: Row(
                 children: [
-                  Expanded(flex: 1, child: Container()),
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Center(
                       child: widget.isProgress
                           ? DotsIndicator(
@@ -211,11 +197,10 @@ class IntroductionScreenState extends State<IntroductionScreen> {
                   ),
                   Expanded(
                     flex: 1,
-                    child: isLastPage
-                        ? doneBtn
-                        : widget.showNextButton
-                            ? nextBtn
-                            : Opacity(opacity: 0.0, child: nextBtn),
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      child: isLastPage ? doneBtn : nextBtn,
+                    ),
                   ),
                 ],
               ),
