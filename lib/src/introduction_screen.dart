@@ -113,7 +113,8 @@ class IntroductionScreenState extends State<IntroductionScreen> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Center(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
                       child: DotsIndicator(
                         dotsCount: widget.pages.length,
                         position: _currentPage,
